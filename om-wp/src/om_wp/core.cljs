@@ -10,6 +10,21 @@
 
 (enable-console-print!)
 
+(defui Mover
+  Object
+  (initLocalState [_] {:x 0})
+  (componentDidUpdate [this _ _]
+    (om/update-state! this update :x inc))
+  (componentDidMount [this] (om/update-state! this update :x inc))
+  (render [this]
+    (let [x (om/get-state this :x)]
+      (html
+        [:div {:style #js
+          {:position "absolute"
+           :transform (str "translateX(" x "px)") :width "400px" :height "400px"
+           :background "yellow"}} "HI"]))))
+(def mover (om/factory Mover))
+
 (defui App
   static om/IQuery
   (query [_] [:hello/test-string])
@@ -18,6 +33,7 @@
     (let [{:keys [hello/test-string]} (om/props this)]
       (html
         [:div
+          (mover)
           [:p (str "Prop is: " test-string)]
           [:input {:on-change
             #(om/transact! this
