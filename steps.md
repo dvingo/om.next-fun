@@ -65,3 +65,9 @@ Add a stateless component, render root with reconciler.
 @reconciler in repl to see that state is updating.
 
 7. Animation.
+
+    git checkout step-7
+
+8. Animation 2.
+
+    git checkout step-8

@@ -10,20 +10,43 @@
 
 (enable-console-print!)
 
+(defn norm [v min max] (/ v (- max min)))
+(defn lerp [t min max] (+ (* t (- max min)) min))
+(defn across [v min1 max1 min2 max2]
+  (lerp (norm v min1 max1) min2 max2))
+
 (defui Mover
   Object
   (initLocalState [_] {:x 0})
   (componentDidUpdate [this _ _]
     (om/update-state! this update :x inc))
-  (componentDidMount [this] (om/update-state! this update :x inc))
+  (componentDidMount [this]
+    (om/update-state! this update :x inc))
   (render [this]
     (let [x (om/get-state this :x)]
       (html
         [:div {:style #js
           {:position "absolute"
-           :transform (str "translateX(" x "px)") :width "400px" :height "400px"
+           :transform (str "translateX(" x "px)")
+           :width "400px" :height "400px"
            :background "yellow"}} "HI"]))))
 (def mover (om/factory Mover))
+
+(defui Sizer
+  Object
+  (initLocalState [_] {:size 300})
+  (onMouse [this e]
+    (om/update-state! this update :size #(across (.-clientY e) 0 200 200 500)))
+  (componentDidMount [this]
+    (js/addEventListener "mousemove" #(.onMouse this %)))
+  (render [this]
+    (let [size (om/get-state this :size)]
+      (html
+        [:div {:style #js
+          {:position "absolute"
+           :width size :height size
+           :background "orange"}} "HI"]))))
+(def sizer (om/factory Sizer))
 
 (defui App
   static om/IQuery
@@ -33,7 +56,8 @@
     (let [{:keys [hello/test-string]} (om/props this)]
       (html
         [:div
-          (mover)
+          ;; (sizer)
+          ;; (mover)
           [:p (str "Prop is: " test-string)]
           [:input {:on-change
             #(om/transact! this
