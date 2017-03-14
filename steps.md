@@ -41,3 +41,11 @@ rlwrap lein figwheel
 ```
 
 Navigate a browser to: http://localhost:3449
+
+3. Edit `om-wp/src/om_wp/core.cljs`
+
+Update om.core to om.next.
+
+Require: core.async, sablono, core.match, clojure.string.
+
+Delete template helper code.
