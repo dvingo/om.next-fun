@@ -49,3 +49,7 @@ Update om.core to om.next.
 Require: core.async, sablono, core.match, clojure.string.
 
 Delete template helper code.
+
+Add a stateless component, render root with reconciler.
+
+4. Add a query.

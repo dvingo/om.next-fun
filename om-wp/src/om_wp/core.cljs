@@ -11,8 +11,27 @@
 (enable-console-print!)
 
 (defui App
+  static om/IQuery
+  (query [_] [:hello/test-string])
   Object
   (render [this]
-    (html [:div "First component"])))
+    (let [{:keys [hello/test-string]} (om/props this)]
+      (html [:div (str "Prop is: " test-string)]))))
 
-(om/add-root! (om/reconciler {}) App js/app)
+(defn parse [env key params]
+  (let [state (:state env)
+        st @state
+        ast (:ast env)]
+        (println)(println)
+        (println "Parsing: " key " " params)
+        (println "AST type: " (:type ast))
+    (let [resp
+      (match [key params]
+        [:hello/test-string _] {:value "It works"}
+        :else {:value "Missing"})]
+        (println "resp: " (pr-str resp))
+        resp)))
+
+(def parser (om/parser {:read parse :mutate parse}))
+
+(om/add-root! (om/reconciler {:parser parser :state {}}) App js/app)
