@@ -55,3 +55,11 @@ Add a stateless component, render root with reconciler.
 4. Add a query.
 
 5. Add a mutation with incorrect second type.
+
+6. Fix mutation.
+
+```clojure
+(in-ns 'om-wp.core)
+@reconciler
+```
+@reconciler in repl to see that state is updating.

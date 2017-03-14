@@ -20,7 +20,9 @@
         [:div
           [:p (str "Prop is: " test-string)]
           [:input {:on-change
-            #(om/transact! this `[(hello/set-string ~(.. % -target -value))])}]]))))
+            #(om/transact! this
+              `[(hello/set-string
+                {:new-str ~(.. % -target -value)})])}]]))))
 
 (defn parse [env key params]
   (let [state (:state env)
@@ -31,13 +33,13 @@
         (println "AST type: " (:type ast))
     (let [resp
       (match [key params]
-        [:hello/test-string _] {:value "It works"}
-        ['hello/set-string new-str]
+        [:hello/test-string _] {:value (:hello/test-string st "")}
+        ['hello/set-string {:new-str new-str}]
           {:action #(swap! state assoc :hello/test-string new-str)}
         :else {:value "Missing"})]
         (println "resp: " (pr-str resp))
         resp)))
 
 (def parser (om/parser {:read parse :mutate parse}))
-
-(om/add-root! (om/reconciler {:parser parser :state {}}) App js/app)
+(def reconciler (om/reconciler {:parser parser :state {}}))
+(om/add-root! reconciler App js/app)
