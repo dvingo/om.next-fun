@@ -53,3 +53,5 @@ Delete template helper code.
 Add a stateless component, render root with reconciler.
 
 4. Add a query.
+
+5. Add a mutation with incorrect second type.

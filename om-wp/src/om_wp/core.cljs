@@ -16,7 +16,11 @@
   Object
   (render [this]
     (let [{:keys [hello/test-string]} (om/props this)]
-      (html [:div (str "Prop is: " test-string)]))))
+      (html
+        [:div
+          [:p (str "Prop is: " test-string)]
+          [:input {:on-change
+            #(om/transact! this `[(hello/set-string ~(.. % -target -value))])}]]))))
 
 (defn parse [env key params]
   (let [state (:state env)
@@ -28,6 +32,8 @@
     (let [resp
       (match [key params]
         [:hello/test-string _] {:value "It works"}
+        ['hello/set-string new-str]
+          {:action #(swap! state assoc :hello/test-string new-str)}
         :else {:value "Missing"})]
         (println "resp: " (pr-str resp))
         resp)))
