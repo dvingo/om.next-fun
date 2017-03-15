@@ -73,3 +73,5 @@ Add a stateless component, render root with reconciler.
     git checkout step-8
 
 9. Add search input and autocomplete shell.
+
+10. Send query to Wikipedia and display results.
