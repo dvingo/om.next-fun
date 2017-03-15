@@ -75,3 +75,5 @@ Add a stateless component, render root with reconciler.
 9. Add search input and autocomplete shell.
 
 10. Send query to Wikipedia and display results.
+
+11. Send follow-up query to Wikipedia and display those results.
