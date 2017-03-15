@@ -71,3 +71,5 @@ Add a stateless component, render root with reconciler.
 8. Animation 2.
 
     git checkout step-8
+
+9. Add search input and autocomplete shell.

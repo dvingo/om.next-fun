@@ -2,7 +2,7 @@
   (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require
     [sablono.core :as sabl :refer-macros [html]]
-    [cljs.core.async :as async :refer [<! put! chan]]
+    [cljs.core.async :refer [<! put! chan]]
     [cljs.core.match :refer-macros [match]]
     [om.next :as om :refer-macros [defui]]
     [om.dom :as dom :include-macros true]
@@ -10,59 +10,22 @@
 
 (enable-console-print!)
 
-(defn norm [v min max] (/ v (- max min)))
-(defn lerp [t min max] (+ (* t (- max min)) min))
-(defn across [v min1 max1 min2 max2]
-  (lerp (norm v min1 max1) min2 max2))
-
-(defui Mover
-  Object
-  (initLocalState [_] {:x 0})
-  (componentDidUpdate [this _ _]
-    (om/update-state! this update :x inc))
-  (componentDidMount [this]
-    (om/update-state! this update :x inc))
-  (render [this]
-    (let [x (om/get-state this :x)]
-      (html
-        [:div {:style #js
-          {:position "absolute"
-           :transform (str "translateX(" x "px)")
-           :width "400px" :height "400px"
-           :background "yellow"}} "HI"]))))
-(def mover (om/factory Mover))
-
-(defui Sizer
-  Object
-  (initLocalState [_] {:size 300})
-  (onMouse [this e]
-    (om/update-state! this update :size #(across (.-clientY e) 0 200 200 500)))
-  (componentDidMount [this]
-    (js/addEventListener "mousemove" #(.onMouse this %)))
-  (render [this]
-    (let [size (om/get-state this :size)]
-      (html
-        [:div {:style #js
-          {:position "absolute"
-           :width size :height size
-           :background "orange"}} "HI"]))))
-(def sizer (om/factory Sizer))
-
-(defui App
+(defui AutoCompleter
   static om/IQuery
-  (query [_] [:hello/test-string])
+  (query [_]
+    [:search/query])
   Object
   (render [this]
-    (let [{:keys [hello/test-string]} (om/props this)]
+    (let [{:keys [search/query]} (om/props this)]
       (html
-        [:div
-          ;; (sizer)
-          ;; (mover)
-          [:p (str "Prop is: " test-string)]
-          [:input {:on-change
-            #(om/transact! this
-              `[(hello/set-string
-                {:new-str ~(.. % -target -value)})])}]]))))
+        [:div [:h2 "Autocompleter"]
+          [:input {
+            :value query
+            :on-change
+              #(om/transact! this
+                 `[(search/do-search {:query ~(.. % -target -value)})])}]]))))
+
+(def auto-completer (om/factory AutoCompleter))
 
 (defn parse [env key params]
   (let [state (:state env)
@@ -73,13 +36,13 @@
         (println "AST type: " (:type ast))
     (let [resp
       (match [key params]
-        [:hello/test-string _] {:value (:hello/test-string st "")}
-        ['hello/set-string {:new-str new-str}]
-          {:action #(swap! state assoc :hello/test-string new-str)}
+        [:search/query _] {:value (:search/query st "")}
+        ['search/do-search {:query q}]
+          {:action #(swap! state assoc :search/query q)}
         :else {:value "Missing"})]
         (println "resp: " (pr-str resp))
         resp)))
 
 (def parser (om/parser {:read parse :mutate parse}))
 (def reconciler (om/reconciler {:parser parser :state {}}))
-(om/add-root! reconciler App js/app)
+(om/add-root! reconciler AutoCompleter js/app)
